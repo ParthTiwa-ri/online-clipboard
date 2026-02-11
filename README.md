@@ -1,40 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Online Clipboard
 
-## Getting Started
+A simple online clipboard app built with Next.js (App Router) for sharing text between devices in real time. Each room (URL) is a separate clipboard. Deployable to Vercel.
 
-First, run the development server:
+## Features
+- Share and edit text instantly between devices
+- Unique clipboard per room (URL slug)
+- Modern, responsive UI with Tailwind CSS
+- Ready for Vercel deployment (frontend & backend in one)
 
+## Usage
+1. Go to the homepage and enter a room name (e.g. `work`, `family`, `abc123`).
+2. Share the URL with another device to sync clipboard content.
+3. Type or paste text in the textarea. Changes are saved and synced automatically.
+
+## Development
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Production/Deploy
+```bash
+npm run build
+npm start
+```
 
-You can start editing the page by modifying `app/route.ts`. The page auto-updates as you edit the file.
+Deploy to Vercel for best results.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## API Routes
-
-This directory contains example API routes for the headless API app.
-
-For more details, see [route.js file convention](https://nextjs.org/docs/app/api-reference/file-conventions/route).
+## Notes
+- This demo uses in-memory storage for clipboard content. For production, use a database or a real-time backend (e.g. Pusher, Ably, Upstash Redis, etc.).
+- Vercel serverless does not support WebSockets natively; polling is used for real-time updates.
