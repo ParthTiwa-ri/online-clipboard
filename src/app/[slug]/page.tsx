@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 
 export default function ClipboardRoom() {
@@ -7,32 +7,47 @@ export default function ClipboardRoom() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Fetch clipboard content
   useEffect(() => {
     async function fetchContent() {
-      setLoading(true);
       const res = await fetch(`/api/${slug}`);
       const data = await res.json();
       setContent(data.content || "");
       setLoading(false);
     }
     fetchContent();
-    // Poll every 2s for updates
-    const interval = setInterval(fetchContent, 2000);
+    // Poll every 3s for updates from other devices
+    const interval = setInterval(async () => {
+      if (!saving) {
+        const res = await fetch(`/api/${slug}`);
+        const data = await res.json();
+        setContent(data.content || "");
+      }
+    }, 3000);
     return () => clearInterval(interval);
-  }, [slug]);
+  }, [slug, saving]);
 
-  // Save clipboard content
-  async function saveContent(newContent: string) {
-    setSaving(true);
+  // Save clipboard content with debouncing
+  function handleContentChange(newContent: string) {
     setContent(newContent);
-    await fetch(`/api/${slug}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: newContent }),
-    });
-    setSaving(false);
+    setSaving(true);
+    
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // Set new timeout to save after 500ms of no typing
+    saveTimeoutRef.current = setTimeout(async () => {
+      await fetch(`/api/${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newContent }),
+      });
+      setSaving(false);
+    }, 500);
   }
 
   return (
@@ -49,7 +64,7 @@ export default function ClipboardRoom() {
         <textarea
           className="flex-1 w-full p-4 text-base resize-none focus:outline-none bg-white"
           value={content}
-          onChange={e => saveContent(e.target.value)}
+          onChange={e => handleContentChange(e.target.value)}
           placeholder="Type or paste text here..."
           autoFocus
         />
